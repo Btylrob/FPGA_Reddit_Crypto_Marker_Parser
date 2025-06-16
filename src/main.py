@@ -4,8 +4,20 @@ from dotenv import load_dotenv
 import logging
 import os
 import re
+import math
+import colorama
 
 load_dotenv()
+
+# CLI load bar
+def progress_barz(progress, total, color=colorama.Fore.YELLOW, bar_length = 10):
+    percent = progress / total
+    filled_length = int(bar_length * total)
+    bar = '█' * filled_length + '_' * (bar_length - filled_length)
+    print(color + f"\r|{bar}| {percent*100:.2f}%", end = "\r")
+
+
+
 
 # Set up logger
 def set_logger(log_file = 'app.log'):
@@ -66,8 +78,30 @@ reddit = praw.Reddit(
 # Selected Crypto subreddits TODO: Give user option to add different reddits based on preference
 subreddit = reddit.subreddit('CryptoCurrency+ethfinance+Bitcoin+ethstaker+cryptomarkets+altcoin+defi+solana')
 
+# Test loading bar
+numbers = [x * 5 for x in range(2000, 3000)]
+results = []
+
+progress_barz(0 ,len(numbers))
+for i, x in enumerate(numbers):
+    results.append(math.factorial(x))
+    progress_barz(i + 1, len(numbers))
+
+
+
+
+
+
 # Fetch recent posts
 for post in subreddit.hot(limit=50):
+    if (
+            post.score <= 10 or
+            post.num_comments < 3 or
+            post.author is None or (post.author.comment_karma < 100 and post.author.link_karma < 50) or
+            len(post.title) < 10 or
+            not crypto_regex.search(post.title) or any(prohib_word in post.title.lower() for prohib_word in ['airdrop'            , 'giveaway', 'nft', 'win', 'dm me'])
+       ):
+            continue
     print(f"Title: {post.title}")
     print(f"Subreddit: {post.subreddit}")
     print(f"Upvotes: {post.score}")
@@ -79,5 +113,6 @@ for post in subreddit.hot(limit=50):
     print(f"Sentiment Flag: {flag}")
     print(f"Suggested Action: {action}")
     # TEST FOR WARNING SOUND NOT PRODUCTION!!
-    if post.score <= 78:
+    if post.score >= 10:
         play_warning()
+
