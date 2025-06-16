@@ -50,14 +50,10 @@ summary = "test2"
 action = "test3"
 flag = "test1"
 
-""" REGEX TESTING
-txt = post.title
+# Test REGEX
+crypto_regex = re.compile(r"\b(btc|bitcoin|eth|ethereum|sol|solana|\$[a-z]{2,5})\b", re.IGNORECASE)
 
-pattern = r"\b(eth|ether|ethereum|#?eth|\$eth)\b"
-x = re.search(pattern, txt, re.IGNORECASE)
 
-print(x.group() if x else "No Match")
-"""
 
 # Reddit app credentials
 reddit = praw.Reddit(
@@ -67,12 +63,13 @@ reddit = praw.Reddit(
 
 )
 
-# Choose your subreddit (e.g., r/wallstreetbets or r/stocks)
-subreddit = reddit.subreddit("wallstreetbets")
+# Selected Crypto subreddits TODO: Give user option to add different reddits based on preference
+subreddit = reddit.subreddit('CryptoCurrency+ethfinance+Bitcoin+ethstaker+cryptomarkets+altcoin+defi+solana')
 
 # Fetch recent posts
-for post in subreddit.new(limit=10):  # Can use .hot(), .top(), etc.
+for post in subreddit.hot(limit=50):
     print(f"Title: {post.title}")
+    print(f"Subreddit: {post.subreddit}")
     print(f"Upvotes: {post.score}")
     print(f"Story: {post.selftext}")
     print(f"Posted by: u/{post.author}")
